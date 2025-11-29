@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>MediSight AI – Create account</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="page-shell">
+      <header class="navbar">
+        <div class="logo">
+          <div class="logo-mark"></div>
+          <span>MediSight AI</span>
+        </div>
+        <nav class="nav-links">
+          <a href="index.html">Landing</a>
+          <a href="login.html">Already have an account?</a>
+        </nav>
+      </header>
+
+      <section class="auth-layout">
+        <div>
+          <div class="badge">
+            <div class="badge-dot"></div>
+            Step 1 · Create your MediSight AI profile
+          </div>
+          <h1 class="hero-title">Register in under a minute.</h1>
+          <p class="hero-subtitle">
+            Accounts let you save chat history, revisit previous camera
+            detections, and track changes in emotion or fatigue across sessions.
+          </p>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Sign up</h2>
+          </div>
+
+          <form class="form-grid" action="dashboard.html" method="get">
+            <!-- Ubah ke route register Laravel nanti -->
+            <div>
+              <label class="label" for="name">Full name</label>
+              <input
+                id="name"
+                type="text"
+                class="input"
+                placeholder="John Doe"
+                required
+              />
+            </div>
+
+            <div>
+              <label class="label" for="email">Email</label>
+              <input
+                id="email"
+                type="email"
+                class="input"
+                placeholder="you@example.com"
+                required
+              />
+            </div>
+
+            <div>
+              <label class="label" for="password">Password</label>
+              <input
+                id="password"
+                type="password"
+                class="input"
+                placeholder="Create a strong password"
+                required
+              />
+            </div>
+
+            <div>
+              <label class="label" for="password_confirmation">
+                Confirm password
+              </label>
+              <input
+                id="password_confirmation"
+                type="password"
+                class="input"
+                placeholder="Repeat your password"
+                required
+              />
+            </div>
+
+            <button type="submit" class="btn-primary">Create account</button>
+          </form>
+
+          <div class="form-footer" style="margin-top: 16px">
+            <span>Already have an account?</span>
+            <a href="login.html">Back to login</a>
+          </div>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

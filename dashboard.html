@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>MediSight AI – Your sessions</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="page-shell">
+      <header class="navbar">
+        <div class="logo">
+          <div class="logo-mark"></div>
+          <span>MediSight AI</span>
+        </div>
+        <nav class="nav-links">
+          <span class="text-muted">Signed in as you@example.com</span>
+          <a href="chat.html" class="nav-cta">Start new session</a>
+          <a href="index.html">Logout</a>
+        </nav>
+      </header>
+
+      <section>
+        <h1 class="hero-title" style="font-size: 26px">
+          Your MediSight AI activity
+        </h1>
+        <p class="hero-subtitle">
+          Choose a previous chat session to resume, or start a new detection and
+          conversation.
+        </p>
+
+        <div class="dashboard-layout">
+          <div class="card">
+            <h2 class="section-title">Session history</h2>
+            <p class="section-subtitle">
+              Example list. Later you can populate this from your Laravel
+              database.
+            </p>
+
+            <div class="history-list">
+              <a href="chat.html" class="history-item">
+                <div class="history-meta">
+                  <strong>Session · 2025-02-10 · Evening</strong>
+                  <span class="text-muted">
+                    Emotion: Calm · Fatigue: Mild · BMI: Normal
+                  </span>
+                </div>
+                <span class="pill">Open</span>
+              </a>
+
+              <a href="chat.html" class="history-item">
+                <div class="history-meta">
+                  <strong>Session · 2025-02-06 · Morning</strong>
+                  <span class="text-muted">
+                    Emotion: Stressed · Fatigue: High · BMI: Overweight risk
+                  </span>
+                </div>
+                <span class="pill">Open</span>
+              </a>
+
+              <a href="chat.html" class="history-item">
+                <div class="history-meta">
+                  <strong>Session · 2025-01-30 · Afternoon</strong>
+                  <span class="text-muted">
+                    Emotion: Neutral · Fatigue: Low · BMI: Normal
+                  </span>
+                </div>
+                <span class="pill">Open</span>
+              </a>
+            </div>
+          </div>
+
+          <div class="card">
+            <h2 class="section-title">Start a new analysis</h2>
+            <p class="section-subtitle">
+              We’ll open the camera, run the Python models once, and then move
+              you directly into the chatbot with your latest readings.
+            </p>
+
+            <ul class="history-list">
+              <li class="history-item" style="cursor: default">
+                <div class="history-meta">
+                  <strong>1. Camera &amp; detection</strong>
+                  <span class="text-muted">
+                    Browser asks for camera permission and captures a frame.
+                  </span>
+                </div>
+              </li>
+              <li class="history-item" style="cursor: default">
+                <div class="history-meta">
+                  <strong>2. Laravel → Python</strong>
+                  <span class="text-muted">
+                    Backend runs
+                    <code>py inference_example.py user_image.jpg</code> and
+                    receives JSON.
+                  </span>
+                </div>
+              </li>
+              <li class="history-item" style="cursor: default">
+                <div class="history-meta">
+                  <strong>3. AI health chat</strong>
+                  <span class="text-muted">
+                    JSON values are used as system prompt for the chatbot.
+                  </span>
+                </div>
+              </li>
+            </ul>
+
+            <a
+              href="chat.html"
+              class="btn-primary"
+              style="margin-top: 16px; display: inline-flex"
+              >Start new MediSight session</a
+            >
+          </div>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>MediSight AI – Camera & Chat</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+  <main class="page-shell">
+    <header class="navbar">
+      <div class="logo">
+        <div class="logo-mark"></div>
+        <span>MediSight AI</span>
+      </div>
+      <nav class="nav-links">
+        <a href="index.html">Landing</a>
+        <a href="dashboard.html">User dashboard</a>
+      </nav>
+    </header>
+
+    <section>
+      <div class="badge">
+        <div class="badge-dot"></div>
+        Step 2 · Camera detection → AI chat
+      </div>
+
+      <h1 class="hero-title" style="font-size: 26px">
+        One scan, then a personalized conversation.
+      </h1>
+      <p class="hero-subtitle">
+        We will briefly access your camera to estimate emotion, fatigue,
+        potential pain, and BMI-related risk. After that, the camera closes
+        and MediSight AI continues as a chatbot.
+      </p>
+
+      <div class="chat-shell">
+        <!-- Left: camera detection -->
+        <div class="card camera-panel" id="cameraStep">
+          <div class="chat-header">
+            <div>
+              <h2 class="section-title">Camera detection</h2>
+              <p class="section-subtitle" style="margin-bottom: 0">
+                This runs only once at the beginning of your session.
+              </p>
+            </div>
+            <span class="chat-status">
+              <span class="hero-indicator" id="cameraStatusDot" style="background: #6b7280"></span>
+              <span id="cameraStatusText">Idle</span>
+            </span>
+          </div>
+
+          <div class="camera-preview">
+            <div class="camera-video-wrapper">
+              <video id="cameraVideo" class="camera-video" autoplay playsinline muted></video>
+              <div class="camera-overlay"></div>
+            </div>
+
+            <div class="camera-footer">
+              <span>
+                We use your webcam feed only to run the models once at the
+                start.
+              </span>
+              <button id="startScanBtn" class="btn-secondary">
+                Start scan
+              </button>
+            </div>
+          </div>
+
+          <div style="
+                margin-top: 12px;
+                font-size: 12px;
+                color: var(--muted);
+                display: flex;
+                justify-content: space-between;
+                gap: 12px;
+              ">
+            <span>
+              After the scan finishes, the webcam stops and you’ll move to the
+              chat automatically.
+            </span>
+            <button id="skipScanBtn" class="btn-ghost" type="button" style="font-size: 11px">
+              Skip scan &amp; go to chat
+            </button>
+          </div>
+        </div>
+
+        <!-- Right: chat -->
+        <div class="card chat-card" id="chatSection">
+          <div class="chat-header">
+            <div>
+              <h2 class="section-title">MediSight AI assistant</h2>
+              <p class="section-subtitle" style="margin-bottom: 0">
+                Your detected signals are used as starting context.
+              </p>
+            </div>
+
+            <div class="chat-status">
+              <span class="hero-indicator green"></span>
+              <span>Ready</span>
+            </div>
+          </div>
+
+          <div class="chat-metrics" id="metricsRow">
+            <div class="metric-pill">
+              <strong>Emotion</strong>
+              <span id="metricEmotion" class="text-muted">–</span>
+            </div>
+            <div class="metric-pill">
+              <strong>Fatigue</strong>
+              <span id="metricFatigue" class="text-muted">–</span>
+            </div>
+            <div class="metric-pill">
+              <strong>Pain</strong>
+              <span id="metricPain" class="text-muted">–</span>
+            </div>
+            <div class="metric-pill">
+              <strong>BMI</strong>
+              <span id="metricBMI" class="text-muted">–</span>
+            </div>
+          </div>
+
+          <div class="chat-messages" id="chatMessages">
+            <div class="msg msg-bot">
+              <strong>MediSight AI</strong>
+              <div style="margin-top: 4px">
+                Hi! I’ll use a short camera scan to estimate your emotion,
+                fatigue, pain level and BMI-related risk. When you’re ready,
+                press <strong>Start scan</strong> on the left.
+              </div>
+            </div>
+          </div>
+
+          <div class="chat-input-row">
+            <input id="chatInput" type="text" placeholder="Type your message..." />
+            <button id="sendBtn" class="btn-primary" type="button">
+              Send
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+    <video id="cameraVideo" class="camera-video" autoplay playsinline muted
+      style="transform: scaleX(1) !important;"></video>
+  </main>
+
+  <script>
+    // Basic front-end logic for camera + dummy metrics
+    const video = document.getElementById("cameraVideo");
+    const cameraStatusDot = document.getElementById("cameraStatusDot");
+    const cameraStatusText = document.getElementById("cameraStatusText");
+    const startScanBtn = document.getElementById("startScanBtn");
+    const skipScanBtn = document.getElementById("skipScanBtn");
+
+    const metricEmotion = document.getElementById("metricEmotion");
+    const metricFatigue = document.getElementById("metricFatigue");
+    const metricPain = document.getElementById("metricPain");
+    const metricBMI = document.getElementById("metricBMI");
+    const chatMessages = document.getElementById("chatMessages");
+    const chatInput = document.getElementById("chatInput");
+    const sendBtn = document.getElementById("sendBtn");
+
+    let mediaStream = null;
+    let scanFinished = false;
+
+    function appendMessage(sender, text) {
+      const div = document.createElement("div");
+      div.classList.add("msg");
+      div.classList.add(sender === "bot" ? "msg-bot" : "msg-user");
+
+      if (sender === "bot") {
+        div.innerHTML = "<strong>MediSight AI</strong><div style='margin-top:4px'>" + text + "</div>";
+      } else {
+        div.textContent = text;
+      }
+
+      chatMessages.appendChild(div);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    async function startCamera() {
+      try {
+        cameraStatusText.textContent = "Requesting camera…";
+        cameraStatusDot.style.background = "#eab308";
+
+        mediaStream = await navigator.mediaDevices.getUserMedia({
+          video: true,
+        });
+        video.srcObject = mediaStream;
+        cameraStatusText.textContent = "Live";
+        cameraStatusDot.style.background = "#22c55e";
+      } catch (err) {
+        cameraStatusText.textContent = "Camera blocked";
+        cameraStatusDot.style.background = "#ef4444";
+        console.error(err);
+      }
+    }
+
+    function stopCamera() {
+      if (mediaStream) {
+        mediaStream.getTracks().forEach((t) => t.stop());
+      }
+      cameraStatusText.textContent = "Stopped";
+      cameraStatusDot.style.background = "#6b7280";
+    }
+
+    async function runScan() {
+      if (!mediaStream) {
+        await startCamera();
+      }
+
+      cameraStatusText.textContent = "Scanning…";
+      cameraStatusDot.style.background = "#eab308";
+
+      // TODO: capture frame & send to Laravel endpoint that calls inference_example.py
+      // Here we just simulate a response.
+      setTimeout(() => {
+        const dummyResult = {
+          emotion: "Calm (0.82)",
+          fatigue: "Mild (0.41)",
+          pain: "Low (0.18)",
+          bmi: "Normal range (22.5)",
+        };
+
+        console.log("Dummy JSON from Python:", dummyResult);
+
+        metricEmotion.textContent = dummyResult.emotion;
+        metricFatigue.textContent = dummyResult.fatigue;
+        metricPain.textContent = dummyResult.pain;
+        metricBMI.textContent = dummyResult.bmi;
+
+        appendMessage(
+          "bot",
+          "I’ve finished the scan. Based on your signals, you appear calm with mild fatigue and no strong pain signal. Your BMI estimate is in the normal range. How can I support you today?"
+        );
+
+        stopCamera();
+        scanFinished = true;
+      }, 2500);
+    }
+
+    startScanBtn.addEventListener("click", () => {
+      runScan();
+    });
+
+    skipScanBtn.addEventListener("click", () => {
+      stopCamera();
+      scanFinished = true;
+      appendMessage(
+        "bot",
+        "Okay, we’ll skip camera detection for now. You can still chat with me, but my recommendations will be more generic."
+      );
+    });
+
+    sendBtn.addEventListener("click", () => {
+      const value = chatInput.value.trim();
+      if (!value) return;
+      appendMessage("user", value);
+      chatInput.value = "";
+
+      // Placeholder bot reply
+      setTimeout(() => {
+        appendMessage(
+          "bot",
+          "Thanks for sharing. This is a static frontend demo, so I’m not connected to a real model yet. In production, this response will come from your Laravel + Python backend."
+        );
+      }, 400);
+    });
+
+    chatInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        sendBtn.click();
+      }
+    });
+
+    // Auto-start camera preview when page loads (optional)
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      startCamera();
+    }
+  </script>
+</body>
+
+</html>
